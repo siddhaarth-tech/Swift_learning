@@ -1,0 +1,53 @@
+Swift:
+
+Variables are always initialized before use(let,var)
+  let name = "Mobicip"; //this is a variable assigned which cannot be changed(Immutable)
+  var name = "Company":
+  name = "Mobicip";//here var keyword makes the variable changable
+  
+Array indices are checked for out-of-bounds errors
+
+Integers are checked for overflow
+
+Optionals ensure that nil values are handled explicitly
+  Instead of using "null" we "use" nil in swift
+  "?" is used // this is used while declaring a variable to use nil value if needed
+  var name : String? = "Mobicip"; //so now here this variable can also accommodate nil values 
+  
+Memory is managed automatically
+Error handling allows controlled recovery from unexpected failures
+
+Swift can often determine the type automatically based on the assigned value
+  let name = "Mobicip"//no datatype is needed here for declaration
+  //While ussing optionals for declaration .datatype is required
+
+
+No main() function required
+
+Variables and Constant
+  var -> Variable
+  let -> Constant (like final)
+
+  var num = 42 
+  num = 50 
+  let con = 42 //immutable
+  
+String conversion:
+  let label = "The width is"
+  let width = 94
+  let widthLabel = label + String(width)//int is changed to string with this
+
+Arrays and Dictionaries
+Array
+  var fruits = ["Apple", "Banana"]
+  fruits.append(“Orange”)
+  
+Dictonary-same as hashmap in java
+  var occupations = ["John":"Developer"] 
+  occupations["Sam"] = "Designer"
+
+Optionals 
+  var optionalName: String?
+
+Nil Coalescing Operator
+  let greeting = nickname ?? fullName
