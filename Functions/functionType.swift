@@ -18,3 +18,10 @@ print(operations(27,3))
 
 var operationForOne = increment
 print(operationForOne(27))
+
+
+//Function Type as Parameter
+func useAnyFunction (_ operations: (Int,Int)->Int ,_ a: Int,_ b: Int) -> Int{
+  return operations(a,b)
+}
+print(useAnyFunction(addOp,27,3))
