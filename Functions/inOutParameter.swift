@@ -8,3 +8,4 @@ func inOutfuncCheck(_ var1: inout Int ,_ var2: Int){
 }
 var a = 27
 inOutfuncCheck(&a , 37)//inout parameter must be a variable not a literal
+print(a) //here value a is changed as it is inout variable
