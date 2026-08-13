@@ -1,0 +1,12 @@
+enum TrafficLight {
+    case red
+    case yellow
+    case green
+
+    func message() {
+        print("Follow the \(self) signal")
+    }
+}
+
+let light = TrafficLight.green
+light.message()

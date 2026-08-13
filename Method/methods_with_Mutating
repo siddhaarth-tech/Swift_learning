@@ -1,0 +1,12 @@
+struct Score {
+    var points = 0
+
+    mutating func addPoints() {
+        points += 10
+    }
+}
+
+var game = Score()
+game.addPoints()
+
+print(game.points)
