@@ -1,0 +1,410 @@
+Serial -> One task at a time
+
+Concurrent -> Multiple tasks can make progress concurrently
+
+
+Types of Dispatch Queues in Swift
+
+1. Main Queue
+
+-> DispatchQueue.main
+-> Serial queue
+-> Used for UI-related work
+-> Runs on the main thread
+
+Example:
+
+DispatchQueue.main.async {
+    print("Main queue")
+}
+
+2. Global Queue
+
+-> DispatchQueue.global()
+-> Concurrent queue
+-> Used for background work
+-> Managed by the system
+-> Supports QoS levels
+
+Example:
+
+
+DispatchQueue.global().async {
+    print("Background work")
+}
+
+
+3. Custom Serial Queue
+
+-> Created using DispatchQueue(label:)
+-> Executes one task at a time
+-> Useful for protecting shared data or controlling execution order
+
+Example:
+
+let queue = DispatchQueue(label: "my.serial.queue")
+
+
+4. Custom Concurrent Queue
+
+-> Created using .concurrent
+-> Multiple tasks can execute concurrently
+-> Can potentially use multiple CPU cores
+
+Example:
+
+let queue = DispatchQueue(
+    label: "my.concurrent.queue",
+    attributes: .concurrent
+)
+
+
+
+
+DispatchQueue:
+
+Main Queue
+    Serial
+
+Global Queues
+    Concurrent
+
+Custom Serial Queue
+    Serial
+
+Custom Concurrent Queue
+    Concurrent
+
+
+Main -> UI / main-thread work
+
+Global -> Background work
+
+Custom -> You control the queue behavior
+
+
+
+QoS Quality of Service
+
+-> QoS tells the system how urgent a piece of work is
+-> The system uses QoS to decide how resources should be given to different tasks
+-> Higher priority work generally gets more preference than lower priority work
+-> QoS is mainly about priority and scheduling
+
+1 User Interactive
+-> Highest common QoS level
+-> Used for work that directly affects the user interface
+-> Used for animations and immediate UI related operations
+-> Should not be used for heavy long running work
+
+Example
+DispatchQueue.global(qos: .userInteractive).async {
+    print("Immediate user related work")
+}
+
+2 User Initiated
+
+-> High priority
+-> Used when the user is waiting for the result
+-> Examples like loading data after a button tap and performing a user requested calculation
+
+Example
+DispatchQueue.global(qos: .userInitiated).async {
+    print("User requested work")
+}
+
+3 Default
+
+-> Normal priority
+-> Used when the work does not belong to another QoS category
+-> Suitable for general purpose work
+
+Example
+DispatchQueue.global(qos: .default).async {
+    print("Normal priority work")
+}
+
+4 Utility
+
+-> Medium to lower priority
+-> Used for work that can take some time
+-> Used when the user does not need the result immediately
+-> Examples include downloading files and processing data
+
+Example
+DispatchQueue.global(qos: .utility).async {
+    print("Long running utility work")
+}
+
+5 Background
+
+-> Lowest priority
+-> Used for work that the user does not directly care about
+-> Used for maintenance and non urgent work
+-> Examples include indexing and cleanup operations(does not disturbs users interaction)
+
+Example
+DispatchQueue.global(qos: .background).async {
+    print("Background maintenance work")
+}
+
+QoS Priority Order
+
+1.User Interactive
+2.User Initiated
+3.Default
+4.Utility
+5.Background
+
+When To Use Which QoS
+
+User Interactive -> Immediate UI related work
+User Initiated -> Work started by the user where the user is waiting for the result
+Default -> General purpose work
+Utility -> Long running work that does not need immediate results
+Background -> Maintenance and non urgent work
+
+Notes
+
+-> Avoid using sync on the main queue when already running on the main queue
+-> This can cause a deadlock
+
+Concurrent Queue With Many Tasks
+
+let queue = DispatchQueue(
+    label: "my.queue",
+    attributes: .concurrent
+)
+
+queue.async {
+    print("Task 1")
+}
+
+queue.async {
+    print("Task 2")
+}
+
+queue.async {
+    print("Task 3")
+}
+
+-> Tasks are allowed to execute concurrently
+-> They do not necessarily run on separate CPU cores
+-> The system scheduler decides how the tasks are executed
+-> Parallel execution can happen when CPU resources are available
+-> Context switching can also happen when multiple tasks are competing for execution resources
+
+
+=>Target Queue
+
+-> A target queue determines where a dispatch queue ultimately submits its work
+-> A custom queue can have another queue as its target queue
+-> Target queues are useful for controlling execution and organizing queues
+
+Example
+let targetQueue = DispatchQueue(
+    label: "target.queue",
+    qos: .utility
+)
+
+let queue = DispatchQueue(
+    label: "my.queue",
+    target: targetQueue
+)
+
+-> my.queue targets targetQueue
+-> Target queues can be useful when multiple custom queues should share the same execution context
+
+
+=>Target Queue With Serial Queues
+
+let targetQueue = DispatchQueue(
+    label: "target.queue"
+)
+
+let queue1 = DispatchQueue(
+    label: "queue1",
+    target: targetQueue
+)
+
+let queue2 = DispatchQueue(
+    label: "queue2",
+    target: targetQueue
+)
+
+-> queue1 and queue2 targets the same queue(targetQueue)
+-> This can be useful for controlling how multiple queues interact with a common target
+
+
+DispatchGroup:
+
+-> GCD feature for tracking multiple tasks
+
+group.enter()
+-> Start tracking a task
+
+group.leave()
+-> Tell the group that a task finished
+
+group.notify()
+-> Run code when all tracked tasks finish
+
+group.wait()
+-> Block until all tracked tasks finish
+
+group.wait(timeout:)
+-> Block for a maximum amount of time
+
+enter and leave
+-> Must be balanced
+
+DispatchGroup
+-> Does not execute work
+
+DispatchQueue
+-> Executes the work
+
+notify
+-> Non blocking
+
+wait
+-> Blocking
+
+
+DispatchWorkItem
+-> It allows us to create a task separately and then execute it on a Dispatch Queue
+-> It gives us more control over a task
+
+
+-> Created using DispatchWorkItem
+
+Example:
+let work = DispatchWorkItem {
+    print("Work started")
+    print("Work finished")
+}
+
+Creating the WorkItem does not automatically execute it
+To execute it:
+DispatchQueue.global().async(execute: work)
+
+1. Execute a DispatchWorkItem
+-> A WorkItem can be submitted to a Dispatch Queue
+
+Example:
+let work = DispatchWorkItem {
+    print("Background work")
+}
+
+DispatchQueue.global().async(execute: work)
+
+-> The WorkItem runs on the global queue
+-> The work runs asynchronously
+
+2. cancel()
+-> cancel() is used to mark a WorkItem as cancelled
+
+Example:
+work.cancel()
+-> Cancellation is a request to stop the work
+-> cancel() does not forcefully stop code that is already running
+-> The WorkItem should check whether it has been cancelled
+
+3. isCancelled
+
+-> isCancelled is used to check whether the WorkItem has been cancelled
+Example:
+if work.isCancelled {
+    print("Work cancelled")
+    return
+}
+
+Example:
+let work = DispatchWorkItem {
+
+    for i in 1...10 {
+
+        if work.isCancelled {
+            print("Work cancelled")
+            return
+        }
+
+        print("Processing \(i)")
+        sleep(1)
+    }
+
+    print("Work finished")
+}
+-> If isCancelled is true, the WorkItem can stop by using return
+
+4. notify()
+-> notify() is used to execute another block after the WorkItem finishes
+
+Example:
+work.notify(queue: .main) {
+    print("Work completed")
+}
+-> Useful when we want to perform an action after background work is completed
+
+Example:
+let work = DispatchWorkItem {
+    print("Doing background work")
+}
+
+work.notify(queue: .main) {
+    print("Background work completed")
+}
+
+DispatchQueue.global().async(execute: work)
+
+5. wait()
+
+-> wait() makes the current thread wait until the WorkItem finishes
+Example:
+let work = DispatchWorkItem {
+    sleep(2)
+    print("Work finished")
+}
+
+DispatchQueue.global().async(execute: work)
+
+work.wait()
+
+print("Done waiting")
+
+-> wait() is a blocking operation
+-> It blocks the thread until the WorkItem finishes
+-> Avoid using wait() on the main thread because it can block the UI
+
+6. wait(timeout:)
+
+-> wait(timeout:) waits for a specific amount of time
+
+Example:
+let result = work.wait(timeout: .now() + 2)
+
+
+if result == .success {
+    print("Work completed")
+} else {
+    print("Timeout")
+}
+
+-> .success means the WorkItem finished
+-> .timedOut means the waiting time ended before the WorkItem finished
+-> Timeout does not cancel the WorkItem
+
+7. perform()
+
+-> perform() executes the WorkItem immediately
+
+Example:
+let work = DispatchWorkItem {
+    print("Hello")
+}
+
+work.perform()
+
+
+-> perform() runs the work synchronously on the current thread
+
