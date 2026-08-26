@@ -408,3 +408,21 @@ work.perform()
 
 -> perform() runs the work synchronously on the current thread
 
+
+OPERATION QUEUE
+
+->When it’s been instantiated, it will transition to the "isReady "state.
+->When we invoked the start method, it will transition to the "isExecuting "state.
+->When the task finished , it moves to "isFinished"
+->When task is in progress and you call cancel , then it will transition to the "isCancelled "state before moving onto the "isFinished" state
+
+
+maxConcurrentOperationCount  ->  Maximum concurrent operations
+qualityOfService  ->  Priority/QoS
+name  ->  Give queue a debugging name
+isSuspended  ->  Pause starting new operations
+operationCount   -> Number of operations associated with queue
+underlyingQueue  ->  Associate with a DispatchQueue
+addOperation()  ->  Add work
+addOperations()  ->  Add multiple operations
+waitUntilAllOperationsAreFinished()   -> Wait for all operations
