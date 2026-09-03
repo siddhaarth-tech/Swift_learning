@@ -1,0 +1,93 @@
+open
+Only for classes + class members
+Outside modules can use, subclass, override
+            
+public
+Other modules can use
+Does not automatically allow subclassing
+
+package
+Same package can use
+
+internal
+Same module can use
+Default access level
+
+fileprivate
+Same Swift file can use
+
+private
+Very restricted
+Used inside its own type/allowed private scope
+
+
+
+Public type not equal to public members
+            
+public struct Car {
+    var speed = 100   // internal
+}
+Need:
+public var speed = 100
+
+if you want speed to be public.
+    
+
+public struct Car {
+}
+
+The automatic init() is still internal.
+
+
+private(set) var score = 0
+Means:
+Read  - yes
+Change - only allowed code
+
+Nested types
+
+public struct Car {
+    private struct Engine {
+    }
+}
+
+Possible.
+A nested type can be more restricted than the outer type.
+
+Tuple
+Access level = most restricted part.
+(internal, private) -> private
+
+Function
+Function cannot expose something more restricted than itself.
+public function
+      
+private return type
+      
+no
+
+Enum
+Enum cases automatically have the same access as the enum.
+public enum Direction {
+    case north   // public
+    case south   // public
+}
+
+Superclass -> internal
+Subclass   -> public (no)
+
+Subclass cannot be more accessible than its superclass.
+
+Protocol
+Public protocol -> its requirements must be implemented as public.
+
+Extension
+
+Extensions can add methods/properties to a type.
+extension Car {
+    func drive() {}
+}
+
+Members are usually internal by default for public/internal types.
+
+
